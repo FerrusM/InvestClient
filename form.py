@@ -1,10 +1,5 @@
-import socket
 from PyQt6 import QtWidgets
 from TokensPage import TokensModel, TokensPage
-
-
-HOST: str = ''  # Строка, представляющая либо имя хоста в нотации домена Интернета, либо IPv4-адрес.
-PORT: int = 12883
 
 
 class Form(QtWidgets.QMainWindow):
@@ -34,29 +29,3 @@ class Form(QtWidgets.QMainWindow):
 
         self.setCentralWidget(central_widget)
         '''====================================================================================='''
-
-        self.__socket: socket.socket | None = None
-
-    def connect(self) -> bool:
-        if self.__socket is None:
-            self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            address: tuple[str, int] = (HOST, PORT)
-            try:
-                self.__socket.connect(address)  # Подключаемся к серверному сокету.
-            except Exception as error:
-                self.__socket.close()
-                self.__socket = None
-                print('Соединение не установлено. Ошибка: {0}.'.format(error))
-                return False
-            else:  # Если исключения не было.
-                print('Соединение с сервером успешно установлено.')
-                return True
-        else:
-            return False
-
-    def close_connection(self):
-        # self.stopAutoupdate()
-        if self.__socket is not None:
-            self.__socket.close()
-            self.__socket = None
-        print('Соединение отсутствует! Попробуйте переподключиться!')

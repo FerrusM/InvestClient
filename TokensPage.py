@@ -186,6 +186,8 @@ class AddTokenPanel(QtWidgets.QGroupBox):
 
 
 class TokensPage(QtWidgets.QWidget):
+    add_token_signal = QtCore.pyqtSignal(TokenClass)  # Сигнал, испускаемый при необходимости добавить токен в модель.
+
     """Страница токенов."""
     def __init__(self, tokens_model: TokensModel, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent=parent)
@@ -199,13 +201,15 @@ class TokensPage(QtWidgets.QWidget):
 
         '''----------------Панель добавления нового токена----------------'''
         self.groupBox_new_token = AddTokenPanel(parent=self)
-        self.groupBox_new_token.add_token_signal.connect(self.__addToken_slot)
+        self.groupBox_new_token.add_token_signal.connect(self.add_token_signal.emit)
         verticalLayout_main.addWidget(self.groupBox_new_token, 0)
         '''---------------------------------------------------------------'''
 
-    @QtCore.pyqtSlot(TokenClass)
-    def __addToken_slot(self, token: TokenClass):
-        if DbConnection.addToken(token):
-            self.tokensView.model().setTokens(DbConnection.getTokens())
-        else:
-            ...
+    # @QtCore.pyqtSlot(TokenClass)
+    # def __addToken_slot(self, token: TokenClass):
+    #     response_
+    #
+    #     if DbConnection.addToken(token):
+    #         self.tokensView.model().setTokens(DbConnection.getTokens())
+    #     else:
+    #         ...
