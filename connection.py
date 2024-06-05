@@ -1,6 +1,6 @@
-import pickle
+import json
 import socket
-from common.protocol import ClientRequest, Commands, ServerResponse
+from communicol.communicol import Commands, ClientRequest, ServerResponse, CommandEncoder
 
 # HOST: str = ''  # Строка, представляющая либо имя хоста в нотации домена Интернета, либо IPv4-адрес.
 HOST: str = 'localhost'
@@ -44,7 +44,7 @@ class ConnectionWithServer:
 
     def add_token(self, token: str) -> bool:
         request = ClientRequest(command=Commands.ADD_TOKEN, data=token)
-        dump = pickle.dumps(request)  # Сериализация.
+        dump = json.dumps(request, cls=CommandEncoder).encode("utf-8")
         try:
             self.__socket.send(dump)  # Отправляем сообщение.
         except ConnectionResetError as cre:
@@ -55,12 +55,13 @@ class ConnectionWithServer:
             return False
         else:  # Если исключения не было.
             try:
-                data = self.__socket.recv(1024)  # Получаем список телефонных номеров.
+                data = self.__socket.recv(1024)
             except Exception as error:
                 print('Функция: socket.recv. Ошибка: {0}.'.format(error))
                 return False
             else:  # Если исключения не было.
-                response = pickle.loads(data)
+                sr_dict: dict = json.loads(data)
+                response: ServerResponse = ServerResponse(command=Commands[sr_dict['command']], flag=sr_dict['flag'], data=sr_dict['data'])
                 if isinstance(response, ServerResponse):
                     if response.command == Commands.ADD_TOKEN:
                         if response.flag:
